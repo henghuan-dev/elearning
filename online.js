@@ -1,9 +1,7 @@
-// online.js
 let call;
 const username = "参加者";
 const chatLog = document.getElementById("chat-log");
 const participantCount = document.getElementById("participant-count");
-const iframe = document.querySelector("iframe");
 
 window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("enter-button").addEventListener("click", () => {
@@ -21,11 +19,18 @@ function initializeCall() {
 
   call.join({ url: "https://catachi.daily.co/catachi" });
 
-  call.on("joined-meeting", updateParticipants);
+  call.on("joined-meeting", () => {
+    updateParticipants();
+    setTimeout(() => {
+      leaveCall();
+    }, 5 * 60 * 1000);
+  });
+
   call.on("participant-joined", updateParticipants);
   call.on("participant-updated", updateParticipants);
   call.on("participant-left", updateParticipants);
   call.on("track-started", updateParticipants);
+
   call.on("app-message", (e) => {
     const sender = e.from.user_name || "参加者";
     appendChatLog(sender, e.data.text);
@@ -40,52 +45,40 @@ function updateParticipants() {
   const count = Object.keys(participants).length;
   participantCount.textContent = `👥 参加者: ${count}`;
 
-  const container = document.getElementById("remote-videos");
-  container.innerHTML = "";
-
   for (const id in participants) {
     const p = participants[id];
     if (p.local || !p.tracks.video?.subscribed || !p.tracks.video.track) continue;
 
     const stream = new MediaStream([p.tracks.video.track]);
-    const video = document.createElement("video");
-    video.autoplay = true;
-    video.playsInline = true;
-    video.muted = true;
-    video.srcObject = stream;
-    video.style.width = "100%";
-    video.style.height = "100%";
-    video.style.objectFit = "cover";
 
-    video.play().catch((err) => {
-      console.warn("autoplay block:", err);
-    });
+    // メイン用
+    const mainVideo = document.getElementById("main-video");
+    if (mainVideo && !mainVideo.srcObject) {
+      mainVideo.srcObject = stream;
+      mainVideo.play().catch(err => console.warn("main video autoplay blocked", err));
+    }
 
-    container.appendChild(video);
-
-    const mini = document.getElementById("mini-player");
-    if (!mini.querySelector("video")) {
-      const cloned = video.cloneNode();
-      cloned.srcObject = video.srcObject;
-      cloned.autoplay = true;
-      cloned.playsInline = true;
-      cloned.muted = true;
-      cloned.play().catch((err) => {
-        console.warn("cloned autoplay block:", err);
-      });
-      mini.appendChild(cloned);
+    // サブ用
+    const miniVideo = document.getElementById("mini-video");
+    if (miniVideo && !miniVideo.srcObject) {
+      miniVideo.srcObject = stream;
+      miniVideo.play().catch(err => console.warn("mini video autoplay blocked", err));
     }
   }
 }
 
-function toggleAudio() {
-  const isMuted = call.localAudio();
-  call.setLocalAudio(!isMuted);
-}
-
 function leaveCall() {
   call.leave();
-  location.reload();
+  document.getElementById("mini-player").style.display = "none";
+  document.getElementById("exit-button").textContent = "再入室";
+  document.getElementById("exit-button").onclick = rejoinCall;
+}
+
+function rejoinCall() {
+  document.getElementById("mini-player").style.display = "block";
+  document.getElementById("exit-button").textContent = "退出";
+  document.getElementById("exit-button").onclick = leaveCall;
+  initializeCall();
 }
 
 function sendChatMessage(event) {
@@ -111,72 +104,83 @@ function makeMiniPlayerDraggable() {
   const handle = player.querySelector(".drag-handle");
   let offsetX, offsetY, isDragging = false;
 
-  handle.addEventListener("mousedown", (e) => {
+  const start = (e) => {
     isDragging = true;
-    offsetX = e.clientX - player.offsetLeft;
-    offsetY = e.clientY - player.offsetTop;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    offsetX = clientX - player.offsetLeft;
+    offsetY = clientY - player.offsetTop;
     e.preventDefault();
-  });
+  };
 
-  document.addEventListener("mousemove", (e) => {
+  const move = (e) => {
     if (!isDragging) return;
-    player.style.left = `${e.clientX - offsetX}px`;
-    player.style.top = `${e.clientY - offsetY}px`;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    player.style.left = `${clientX - offsetX}px`;
+    player.style.top = `${clientY - offsetY}px`;
     player.style.right = "auto";
     player.style.bottom = "auto";
-  });
+  };
 
-  document.addEventListener("mouseup", () => {
+  const end = () => {
     isDragging = false;
-  });
+  };
+
+  handle.addEventListener("mousedown", start);
+  handle.addEventListener("touchstart", start);
+  document.addEventListener("mousemove", move);
+  document.addEventListener("touchmove", move);
+  document.addEventListener("mouseup", end);
+  document.addEventListener("touchend", end);
 }
 
-function swapPlayers() {
-  const iframe = document.querySelector("iframe");
-  const video = document.querySelector("#mini-player video, .player-block video");
+// 🎬 プレーヤー切り替え（DOMを動かさず表示のみ）
+function swapPlayersByVisibility() {
+  const mainIframe = document.getElementById("main-iframe");
+  const mainVideo = document.getElementById("main-video");
+  const miniIframe = document.getElementById("mini-iframe");
+  const miniVideo = document.getElementById("mini-video");
 
-  if (!iframe || !video) return;
+  const isIframeMain = mainIframe.classList.contains("visible");
 
-  const iframeBlock = iframe.closest(".player-block, .mini-player");
-  const videoBlock = video.closest(".player-block, .mini-player");
+  // 表示の切り替え（DOM構造は触らない）
+  toggleVisibility(mainIframe, !isIframeMain);
+  toggleVisibility(mainVideo, isIframeMain);
+  toggleVisibility(miniIframe, isIframeMain);
+  toggleVisibility(miniVideo, !isIframeMain);
 
-  iframeBlock.replaceChild(video, iframe);
-  videoBlock.appendChild(iframe);
+  // 再生の保証
+  if (!isIframeMain) mainVideo.play().catch(() => {});
+  else miniVideo.play().catch(() => {});
 
-  const iframeLabel = iframeBlock.querySelector(".block-label, .drag-handle");
-  const videoLabel = videoBlock.querySelector(".block-label, .drag-handle");
-
-  const isMain = iframeBlock.dataset.role === "main";
-
-  if (isMain) {
-    iframeBlock.dataset.role = "sub";
-    videoBlock.dataset.role = "main";
-    if (iframeLabel) iframeLabel.textContent = "👨‍🏫 講師映像";
-    if (videoLabel) videoLabel.textContent = "🎬 教材映像";
-  } else {
-    iframeBlock.dataset.role = "main";
-    videoBlock.dataset.role = "sub";
-    if (iframeLabel) iframeLabel.textContent = "🎬 教材映像";
-    if (videoLabel) videoLabel.textContent = "👨‍🏫 講師映像";
+  // ラベル更新
+  const mainLabel = document.querySelector('.player-block .block-label');
+  const miniLabel = document.querySelector('#mini-player .drag-handle');
+  if (mainLabel) {
+    mainLabel.textContent = isIframeMain ? "👨‍🏫 講師映像" : "🎬 教材映像";
+  }
+  if (miniLabel) {
+    miniLabel.textContent = isIframeMain ? "🎬 教材映像" : "👨‍🏫 講師映像";
   }
 }
-
+function toggleVisibility(element, show) {
+  if (show) {
+    element.classList.add("visible");
+    element.classList.remove("hidden");
+  } else {
+    element.classList.add("hidden");
+    element.classList.remove("visible");
+  }
+}
 function addSwapButtonToMiniPlayer() {
   const mini = document.getElementById("mini-player");
+  if (mini.querySelector(".swap-btn")) return;
+
   const swap = document.createElement("button");
-  swap.textContent = "🔄";
   swap.className = "swap-btn";
-  swap.style.position = "absolute";
-  swap.style.bottom = "8px";
-  swap.style.right = "8px";
-  swap.style.zIndex = "999";
-  swap.style.padding = "0.4rem 0.6rem";
-  swap.style.fontSize = "1rem";
-  swap.style.background = "#6366f1";
-  swap.style.color = "#fff";
-  swap.style.border = "none";
-  swap.style.borderRadius = "8px";
-  swap.style.cursor = "pointer";
-  swap.onclick = swapPlayers;
+  swap.innerHTML = `<i class="fas fa-right-left"></i>`;
+  swap.onclick = swapPlayersByVisibility;
+
   mini.appendChild(swap);
 }

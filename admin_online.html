@@ -18,24 +18,41 @@
       color: white;
       padding: 1rem;
       text-align: center;
+      margin-bottom: 1rem;
     }
     .main-layout {
-      display: flex;
-      flex-direction: row;
-      gap: 2rem;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 1rem;
     }
-    .video-block {
-      flex: 1;
+    .player-area {
+      grid-column: 1 / 2;
+      grid-row: 1 / 2;
+    }
+    .controls {
+      grid-column: 1 / 2;
+      grid-row: 2 / 3;
+      margin-top: 0.5rem;
+    }
+    .participants {
+      grid-column: 2 / 3;
+      grid-row: 1 / 2;
+      max-height: 120px;
+      overflow-y: auto;
+      font-size: 0.8rem;
+    }
+    .chat-section {
+      grid-column: 2 / 3;
+      grid-row: 2 / 3;
+      background: #ede9fe;
+      padding: 1rem;
+      border-radius: 8px;
     }
     video {
       width: 100%;
-      max-width: 640px;
       border-radius: 12px;
       background: black;
-    }
-    select {
-      margin-top: 0.5rem;
-      padding: 0.3rem;
     }
     .chat-log {
       height: 200px;
@@ -44,7 +61,6 @@
       border: 1px solid #ccc;
       border-radius: 8px;
       padding: 0.5rem;
-      margin-top: 1rem;
     }
     form {
       display: flex;
@@ -61,72 +77,62 @@
       color: white;
       border: none;
       border-radius: 6px;
+      cursor: pointer;
     }
-    #participant-info {
-      width: 220px;
-      max-height: 400px;
-      overflow-y: auto;
-      background: #ffffff;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 1rem;
-    }
-    #participant-list {
+    ul {
       list-style: none;
-      padding-left: 0;
+      padding: 0;
     }
-    #participant-list li {
+    li {
       margin-bottom: 0.5rem;
     }
   </style>
 </head>
 <body>
-  <header>🎥 オンライン講義（講師・オーナー）</header>
-
-  <div class="main-layout">
-    <div class="video-block">
-      <h3>あなたのカメラ映像</h3>
-      <video id="local-video" autoplay muted playsinline></video><br />
+<div class="main-layout">
+  <div>
+    <div class="player-area">
+      <h3>プレーヤー</h3>
+      <video id="local-video" autoplay muted playsinline></video>
+    </div>
+    <div class="controls">
       <label for="camera-select">🎥 カメラ選択：</label>
       <select id="camera-select"></select>
-
+      <button onclick="toggleAudio()">🎙 マイク切替</button>
+      <button onclick="leaveCall()">🚪 退出</button>
+    </div>
+  </div>
+  <div>
+    <div class="participants">
+      <h4>👥 参加者リスト</h4>
+      <ul id="participant-list"></ul>
+    </div>
+    <div class="chat-section">
+      <h4>Chat-input</h4>
       <div class="chat-log" id="chat-log"></div>
-
       <form onsubmit="sendChatMessage(event)">
         <input type="text" id="chat-input" placeholder="受講者にメッセージを送信" />
         <button type="submit">送信</button>
       </form>
-
-      <div style="margin-top: 1rem;">
-        <button onclick="toggleAudio()">🎙 マイク切替</button>
-        <button onclick="leaveCall()">🚪 退出</button>
-      </div>
-    </div>
-
-    <div id="participant-info">
-      <h4>👥 参加者リスト</h4>
-      <ul id="participant-list"></ul>
     </div>
   </div>
+</div>
+</div>
 
   <script>
     let call;
     const chatLog = document.getElementById("chat-log");
     const cameraSelect = document.getElementById("camera-select");
-
-    let currentToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyIjoiY2F0YWNoaSIsIm8iOnRydWUsInNyIjp0cnVlLCJ1IjoiSW5zdHJ1Y3RvciIsImQiOiJkNTY2MTRlOS1jZDUwLTQ1NzItODE3Zi02Y2U4YjI0MjFhNTIiLCJpYXQiOjE3NTAwNTUwMDV9.ko_M7ZEUgII_GeyzhZGRL4keH4fdIp991rW5Yzb2Fmw"; // ← 差し替えが必要
+    let currentToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyIjoiY2F0YWNoaSIsIm8iOnRydWUsInNyIjp0cnVlLCJ1IjoiSW5zdHJ1Y3RvciIsImQiOiJkNTY2MTRlOS1jZDUwLTQ1NzItODE3Zi02Y2U4YjI0MjFhNTIiLCJpYXQiOjE3NTAwNTUwMDV9.ko_M7ZEUgII_GeyzhZGRL4keH4fdIp991rW5Yzb2Fmw";
 
     async function initializeCall() {
       if (call) await call.destroy();
-
       const selectedCamera = cameraSelect.value || true;
-
       call = Daily.createCallObject({
         userName: "講師（JWT）",
         audioSource: true,
         videoSource: selectedCamera
       });
-
       call.join({ url: "https://catachi.daily.co/catachi", token: currentToken });
 
       call.on("joined-meeting", () => {
@@ -138,6 +144,10 @@
           video.play().catch(e => console.warn("local video play failed:", e));
         }
         updateParticipantList();
+        setTimeout(() => {
+          alert("5分経過したため自動退出します。");
+          leaveCall();
+        }, 5 * 60 * 1000);
       });
 
       call.on("app-message", (e) => {
@@ -195,7 +205,6 @@
       const participants = call.participants();
       const list = document.getElementById("participant-list");
       list.innerHTML = "";
-
       for (const id in participants) {
         const p = participants[id];
         const item = document.createElement("li");
