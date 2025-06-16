@@ -19,14 +19,23 @@
       padding: 1rem;
       text-align: center;
     }
+    .main-layout {
+      display: flex;
+      flex-direction: row;
+      gap: 2rem;
+    }
     .video-block {
-      margin-top: 1rem;
+      flex: 1;
     }
     video {
       width: 100%;
       max-width: 640px;
       border-radius: 12px;
       background: black;
+    }
+    select {
+      margin-top: 0.5rem;
+      padding: 0.3rem;
     }
     .chat-log {
       height: 200px;
@@ -54,7 +63,13 @@
       border-radius: 6px;
     }
     #participant-info {
-      margin-top: 1.5rem;
+      width: 220px;
+      max-height: 400px;
+      overflow-y: auto;
+      background: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 1rem;
     }
     #participant-list {
       list-style: none;
@@ -68,41 +83,51 @@
 <body>
   <header>🎥 オンライン講義（講師・オーナー）</header>
 
-  <div class="video-block">
-    <h3>あなたのカメラ映像</h3>
-    <video id="local-video" autoplay muted playsinline></video>
-  </div>
+  <div class="main-layout">
+    <div class="video-block">
+      <h3>あなたのカメラ映像</h3>
+      <video id="local-video" autoplay muted playsinline></video><br />
+      <label for="camera-select">🎥 カメラ選択：</label>
+      <select id="camera-select"></select>
 
-  <div class="chat-log" id="chat-log"></div>
+      <div class="chat-log" id="chat-log"></div>
 
-  <form onsubmit="sendChatMessage(event)">
-    <input type="text" id="chat-input" placeholder="受講者にメッセージを送信" />
-    <button type="submit">送信</button>
-  </form>
+      <form onsubmit="sendChatMessage(event)">
+        <input type="text" id="chat-input" placeholder="受講者にメッセージを送信" />
+        <button type="submit">送信</button>
+      </form>
 
-  <div style="margin-top: 1rem;">
-    <button onclick="toggleAudio()">🎙 マイク切替</button>
-    <button onclick="leaveCall()">🚪 退出</button>
-  </div>
+      <div style="margin-top: 1rem;">
+        <button onclick="toggleAudio()">🎙 マイク切替</button>
+        <button onclick="leaveCall()">🚪 退出</button>
+      </div>
+    </div>
 
-  <div id="participant-info">
-    <h4>👥 参加者リスト</h4>
-    <ul id="participant-list"></ul>
+    <div id="participant-info">
+      <h4>👥 参加者リスト</h4>
+      <ul id="participant-list"></ul>
+    </div>
   </div>
 
   <script>
     let call;
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyIjoiY2F0YWNoaSIsIm8iOnRydWUsInNyIjp0cnVlLCJ1IjoiSW5zdHJ1Y3RvciIsImQiOiJkNTY2MTRlOS1jZDUwLTQ1NzItODE3Zi02Y2U4YjI0MjFhNTIiLCJpYXQiOjE3NTAwNTUwMDV9.ko_M7ZEUgII_GeyzhZGRL4keH4fdIp991rW5Yzb2Fmw"; // ← 実際のトークンに差し替えてください
     const chatLog = document.getElementById("chat-log");
+    const cameraSelect = document.getElementById("camera-select");
 
-    window.addEventListener("DOMContentLoaded", () => {
+    let currentToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyIjoiY2F0YWNoaSIsIm8iOnRydWUsInNyIjp0cnVlLCJ1IjoiSW5zdHJ1Y3RvciIsImQiOiJkNTY2MTRlOS1jZDUwLTQ1NzItODE3Zi02Y2U4YjI0MjFhNTIiLCJpYXQiOjE3NTAwNTUwMDV9.ko_M7ZEUgII_GeyzhZGRL4keH4fdIp991rW5Yzb2Fmw"; // ← 差し替えが必要
+
+    async function initializeCall() {
+      if (call) await call.destroy();
+
+      const selectedCamera = cameraSelect.value || true;
+
       call = Daily.createCallObject({
         userName: "講師（JWT）",
         audioSource: true,
-        videoSource: true
+        videoSource: selectedCamera
       });
 
-      call.join({ url: "https://catachi.daily.co/catachi", token });
+      call.join({ url: "https://catachi.daily.co/catachi", token: currentToken });
 
       call.on("joined-meeting", () => {
         const track = call.participants().local?.tracks?.video?.track;
@@ -126,6 +151,20 @@
       call.on("participant-joined", updateParticipantList);
       call.on("participant-updated", updateParticipantList);
       call.on("participant-left", updateParticipantList);
+    }
+
+    navigator.mediaDevices.enumerateDevices().then((devices) => {
+      const cameras = devices.filter(d => d.kind === "videoinput");
+      cameras.forEach((cam) => {
+        const option = document.createElement("option");
+        option.value = cam.deviceId;
+        option.textContent = cam.label || `カメラ ${cameraSelect.length + 1}`;
+        cameraSelect.appendChild(option);
+      });
+    });
+
+    cameraSelect.addEventListener("change", () => {
+      initializeCall();
     });
 
     function sendChatMessage(event) {
@@ -166,6 +205,10 @@
         list.appendChild(item);
       }
     }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      setTimeout(() => initializeCall(), 1000);
+    });
   </script>
 </body>
 </html>
