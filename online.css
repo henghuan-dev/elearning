@@ -127,6 +127,8 @@ form.chat-form button,
   position: fixed;
   bottom: 1rem;
   right: 1rem;
+  left: auto;
+  top: auto;  
   width: 320px;
   height: 180px;
   background: black;
@@ -146,6 +148,8 @@ form.chat-form button,
 }
 
 .drag-handle {
+  z-index: 10; /* ← ここを追加 */
+  position: relative; /* ← 明示 */
   background: #444;
   color: white;
   padding: 4px;

@@ -8,6 +8,9 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("entry-overlay").style.display = "none";
     initializeCall();
   });
+
+  // ドラッグ移動を初期化
+  makeMiniPlayerDraggable();
 });
 
 function initializeCall() {
@@ -35,9 +38,6 @@ function initializeCall() {
     const sender = e.from.user_name || "参加者";
     appendChatLog(sender, e.data.text);
   });
-
-  makeMiniPlayerDraggable();
-  addSwapButtonToMiniPlayer();
 }
 
 function updateParticipants() {
@@ -51,14 +51,12 @@ function updateParticipants() {
 
     const stream = new MediaStream([p.tracks.video.track]);
 
-    // メイン用
     const mainVideo = document.getElementById("main-video");
     if (mainVideo && !mainVideo.srcObject) {
       mainVideo.srcObject = stream;
       mainVideo.play().catch(err => console.warn("main video autoplay blocked", err));
     }
 
-    // サブ用
     const miniVideo = document.getElementById("mini-video");
     if (miniVideo && !miniVideo.srcObject) {
       miniVideo.srcObject = stream;
@@ -99,10 +97,11 @@ function appendChatLog(sender, message) {
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 
+// 🟡 ドラッグ移動機能
 function makeMiniPlayerDraggable() {
   const player = document.getElementById("mini-player");
   const handle = player.querySelector(".drag-handle");
-  let offsetX, offsetY, isDragging = false;
+  let offsetX = 0, offsetY = 0, isDragging = false;
 
   const start = (e) => {
     isDragging = true;
@@ -123,9 +122,7 @@ function makeMiniPlayerDraggable() {
     player.style.bottom = "auto";
   };
 
-  const end = () => {
-    isDragging = false;
-  };
+  const end = () => { isDragging = false; };
 
   handle.addEventListener("mousedown", start);
   handle.addEventListener("touchstart", start);
@@ -135,35 +132,28 @@ function makeMiniPlayerDraggable() {
   document.addEventListener("touchend", end);
 }
 
-// 🎬 プレーヤー切り替え（DOMを動かさず表示のみ）
+// 🎬 プレーヤー切り替え（visible/hiddenクラスで入れ替え）
 function swapPlayersByVisibility() {
   const mainIframe = document.getElementById("main-iframe");
   const mainVideo = document.getElementById("main-video");
-  const miniIframe = document.getElementById("mini-iframe");
   const miniVideo = document.getElementById("mini-video");
 
   const isIframeMain = mainIframe.classList.contains("visible");
 
-  // 表示の切り替え（DOM構造は触らない）
   toggleVisibility(mainIframe, !isIframeMain);
   toggleVisibility(mainVideo, isIframeMain);
-  toggleVisibility(miniIframe, isIframeMain);
   toggleVisibility(miniVideo, !isIframeMain);
 
-  // 再生の保証
-  if (!isIframeMain) mainVideo.play().catch(() => {});
-  else miniVideo.play().catch(() => {});
-
-  // ラベル更新
-  const mainLabel = document.querySelector('.player-block .block-label');
-  const miniLabel = document.querySelector('#mini-player .drag-handle');
-  if (mainLabel) {
-    mainLabel.textContent = isIframeMain ? "👨‍🏫 講師映像" : "🎬 教材映像";
-  }
-  if (miniLabel) {
-    miniLabel.textContent = isIframeMain ? "🎬 教材映像" : "👨‍🏫 講師映像";
-  }
+  // ✅ 明示的に再生
+  setTimeout(() => {
+    if (!isIframeMain) {
+      mainVideo?.play().catch(() => {});
+    } else {
+      miniVideo?.play().catch(() => {});
+    }
+  }, 100); // 描画が切り替わった直後に再生
 }
+
 function toggleVisibility(element, show) {
   if (show) {
     element.classList.add("visible");
@@ -172,15 +162,4 @@ function toggleVisibility(element, show) {
     element.classList.add("hidden");
     element.classList.remove("visible");
   }
-}
-function addSwapButtonToMiniPlayer() {
-  const mini = document.getElementById("mini-player");
-  if (mini.querySelector(".swap-btn")) return;
-
-  const swap = document.createElement("button");
-  swap.className = "swap-btn";
-  swap.innerHTML = `<i class="fas fa-right-left"></i>`;
-  swap.onclick = swapPlayersByVisibility;
-
-  mini.appendChild(swap);
 }
