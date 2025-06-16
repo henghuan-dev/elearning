@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>オンライン講義（講師・オーナー）</title>
+  <script src="https://unpkg.com/@daily-co/daily-js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9fafb;
+      color: #111827;
+      padding: 1rem;
+    }
+    header {
+      font-size: 1.2rem;
+      background: #6366f1;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    .video-block {
+      margin-top: 1rem;
+    }
+    video {
+      width: 100%;
+      max-width: 640px;
+      border-radius: 12px;
+      background: black;
+    }
+    .chat-log {
+      height: 200px;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 0.5rem;
+      margin-top: 1rem;
+    }
+    form {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    input {
+      flex: 1;
+      padding: 0.5rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 6px;
+    }
+    #participant-info {
+      margin-top: 1.5rem;
+    }
+    #participant-list {
+      list-style: none;
+      padding-left: 0;
+    }
+    #participant-list li {
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>🎥 オンライン講義（講師・オーナー）</header>
+
+  <div class="video-block">
+    <h3>あなたのカメラ映像</h3>
+    <video id="local-video" autoplay muted playsinline></video>
+  </div>
+
+  <div class="chat-log" id="chat-log"></div>
+
+  <form onsubmit="sendChatMessage(event)">
+    <input type="text" id="chat-input" placeholder="受講者にメッセージを送信" />
+    <button type="submit">送信</button>
+  </form>
+
+  <div style="margin-top: 1rem;">
+    <button onclick="toggleAudio()">🎙 マイク切替</button>
+    <button onclick="leaveCall()">🚪 退出</button>
+  </div>
+
+  <div id="participant-info">
+    <h4>👥 参加者リスト</h4>
+    <ul id="participant-list"></ul>
+  </div>
+
+  <script>
+    let call;
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyIjoiY2F0YWNoaSIsIm8iOnRydWUsInNyIjp0cnVlLCJ1IjoiSW5zdHJ1Y3RvciIsImQiOiJkNTY2MTRlOS1jZDUwLTQ1NzItODE3Zi02Y2U4YjI0MjFhNTIiLCJpYXQiOjE3NTAwNTUwMDV9.ko_M7ZEUgII_GeyzhZGRL4keH4fdIp991rW5Yzb2Fmw"; // ← 実際のトークンに差し替えてください
+    const chatLog = document.getElementById("chat-log");
+
+    window.addEventListener("DOMContentLoaded", () => {
+      call = Daily.createCallObject({
+        userName: "講師（JWT）",
+        audioSource: true,
+        videoSource: true
+      });
+
+      call.join({ url: "https://catachi.daily.co/catachi", token });
+
+      call.on("joined-meeting", () => {
+        const track = call.participants().local?.tracks?.video?.track;
+        if (track) {
+          const stream = new MediaStream([track]);
+          const video = document.getElementById("local-video");
+          video.srcObject = stream;
+          video.play().catch(e => console.warn("local video play failed:", e));
+        }
+        updateParticipantList();
+      });
+
+      call.on("app-message", (e) => {
+        const sender = e.from.user_name || "受講者";
+        const msg = document.createElement("div");
+        msg.textContent = `${sender}: ${e.data.text}`;
+        chatLog.appendChild(msg);
+        chatLog.scrollTop = chatLog.scrollHeight;
+      });
+
+      call.on("participant-joined", updateParticipantList);
+      call.on("participant-updated", updateParticipantList);
+      call.on("participant-left", updateParticipantList);
+    });
+
+    function sendChatMessage(event) {
+      event.preventDefault();
+      const input = document.getElementById("chat-input");
+      const text = input.value.trim();
+      if (text !== "") {
+        call.sendAppMessage({ text });
+        const msg = document.createElement("div");
+        msg.textContent = `あなた: ${text}`;
+        chatLog.appendChild(msg);
+        chatLog.scrollTop = chatLog.scrollHeight;
+        input.value = "";
+      }
+    }
+
+    function toggleAudio() {
+      const isMuted = call.localAudio();
+      call.setLocalAudio(!isMuted);
+    }
+
+    function leaveCall() {
+      call.leave();
+      location.reload();
+    }
+
+    function updateParticipantList() {
+      const participants = call.participants();
+      const list = document.getElementById("participant-list");
+      list.innerHTML = "";
+
+      for (const id in participants) {
+        const p = participants[id];
+        const item = document.createElement("li");
+        const mic = p.tracks.audio?.state === "playable" ? "🎤 ON" : "🔇 OFF";
+        const cam = p.tracks.video?.state === "playable" ? "📷 ON" : "🚫 OFF";
+        item.textContent = `👤 ${p.user_name || "(名前未設定)"} - ${mic} / ${cam}`;
+        list.appendChild(item);
+      }
+    }
+  </script>
+</body>
+</html>

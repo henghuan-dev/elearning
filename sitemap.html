@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Eラーニング ページ遷移図</title>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "default",
+    });
+  </script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background-color: #f9fafb;
+      color: #1f2937;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 2rem;
+    }
+
+    .chart-container {
+      max-width: 960px;
+      margin: 0 auto;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .mermaid {
+      font-size: 14px;
+      scale: 1.05;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Eラーニング ページ遷移図</h1>
+  <div class="chart-container">
+    <div class="mermaid">
+      graph TD
+
+        %% トップページ（単独ノード）
+        top[トップページ（レッスン一覧）]
+
+        %% カテゴリ分け構造
+        subgraph 認証関連
+          login[ログイン・新規登録]
+          reset[パスワード再発行]
+          login --> reset
+        end
+
+        subgraph 会員情報
+          mypage[マイページ]
+        end
+
+        subgraph レッスン管理
+          lesson[レッスン詳細（動画再生）]
+          cert[証明書発行（PDF）]
+          lesson --> cert
+        end
+
+        subgraph 補助ページ
+          guide[サービスガイド]
+          terms[利用規約]
+        end
+
+        %% トップページからの遷移
+        top --> login
+        top --> lesson
+        top --> mypage
+        top --> guide
+        top --> terms
+
+        %% その他の導線
+        lesson --> mypage
+        mypage --> cert
+    </div>
+    <h2>※補足</h2>
+    <ul>
+        <li>管理者ページ（Basic認証）は独立サイトとして存在し、他のページとは繋がっていません。</li>
+    </ul>
+    <div class="mermaid">
+        graph TD
+  
+            admin[管理者ページ]
+      </div>
+  </div>
+</body>
+</html>

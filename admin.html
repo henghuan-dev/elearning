@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理画面｜会員管理</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #f1f5f9;
+      color: #111827;
+    }
+    header {
+      background: #6366f1;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+    .container {
+      display: flex;
+    }
+    nav {
+      width: 220px;
+      background: #e0e7ff;
+      padding: 1rem;
+      height: 100vh;
+    }
+    nav ul {
+      list-style: none;
+      padding: 0;
+    }
+    nav li {
+      margin-bottom: 1rem;
+    }
+    nav a {
+      color: #374151;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    main {
+      flex: 1;
+      padding: 2rem;
+      overflow-x: auto;
+    }
+    h2 {
+      margin-bottom: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    th, td {
+      border: 1px solid #e5e7eb;
+      padding: 0.75rem;
+      text-align: left;
+    }
+    th {
+      background-color: #f9fafb;
+    }
+    .btn {
+      background: #6366f1;
+      color: white;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .btn:hover {
+      background: #4338ca;
+    }
+  </style>
+</head>
+<body>
+  <header>管理画面｜会員管理</header>
+  <div class="container">
+    <nav>
+      <ul>
+        <li><a href="#">会員管理</a></li>
+        <li><a href="#">レッスン管理</a></li>
+        <li><a href="#">進捗管理</a></li>
+        <li><a href="#">証明書管理</a></li>
+        <li><a href="#">支払い管理</a></li>
+        <li><a href="#">ログ出力</a></li>
+      </ul>
+    </nav>
+    <main>
+      <h2>会員一覧</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>名前</th>
+            <th>メールアドレス</th>
+            <th>登録日</th>
+            <th>最終ログイン</th>
+            <th>支払い状況</th>
+            <th>状態</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>山田 太郎</td>
+            <td>taro@example.com</td>
+            <td>2024/12/01</td>
+            <td>2025/05/06 09:12</td>
+            <td>有料（月額）</td>
+            <td>有効</td>
+            <td>
+              <button class="btn">編集</button>
+              <button class="btn">停止</button>
+            </td>
+          </tr>
+          <tr>
+            <td>佐藤 花子</td>
+            <td>hanako@example.com</td>
+            <td>2025/01/15</td>
+            <td>2025/04/30 21:45</td>
+            <td>無料会員</td>
+            <td>停止</td>
+            <td>
+              <button class="btn">編集</button>
+              <button class="btn">有効化</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>レッスン一覧</title>
+  <style>
+    :root {
+      --main-accent: #6366f1;
+      --button-hover: #4338ca;
+      --card-bg: #ffffff;
+      --bg-color: #f9fafb;
+      --text-color: #111827;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 1rem;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 999;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background-color: rgba(99, 102, 241, 0.85);
+      color: white;
+      backdrop-filter: blur(6px);
+    }
+
+    header h1 {
+      font-size: 1.25rem;
+      margin: 0;
+    }
+
+    nav a {
+      background-color: white;
+      color: var(--main-accent);
+      padding: 0.4rem 0.8rem;
+      border-radius: 5px;
+      font-weight: bold;
+      text-decoration: none;
+      margin-left: 0.5rem;
+    }
+
+    nav a:hover {
+      background-color: #e0e7ff;
+    }
+
+    h1 {
+      margin-top: 5rem;
+      font-size: 1.5rem;
+      color: #ffffff;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    details {
+      margin-bottom: 1.5rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background-color: #fff;
+    }
+
+    summary {
+      padding: 1rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      background-color: var(--main-accent);
+      color: white;
+      cursor: pointer;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .lesson-wrapper {
+      display: flex;
+      overflow-x: auto;
+      gap: 1rem;
+      padding: 1rem;
+      scroll-snap-type: x mandatory;
+    }
+
+    .lesson {
+      background: var(--card-bg);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+      flex: 0 0 auto;
+      width: 280px;
+      scroll-snap-align: start;
+    }
+
+    .lesson img {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+    }
+
+    .lesson-content {
+      padding: 0.75rem 1rem 1rem;
+    }
+
+    .lesson-content h2 {
+      font-size: 1rem;
+      margin: 0.5rem 0;
+    }
+
+    .lesson-content p {
+      font-size: 0.9rem;
+      color: #4b5563;
+    }
+
+    .watch-button {
+      display: inline-block;
+      background-color: var(--main-accent);
+      color: white;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      border-radius: 5px;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .watch-button:hover {
+      background-color: var(--button-hover);
+    }
+
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+    <header>
+        <h1>Eラーニング</h1>
+        <nav>
+          <a href="login.html">ログイン</a>
+          <a href="mypage.html">マイページ</a>
+        </nav>
+    </header>
+
+  <h1>レッスン一覧</h1>
+
+  <details open>
+    <summary>HTML基礎（全3レッスン）</summary>
+    <div class="lesson-wrapper">
+      <div class="lesson">
+        <img src="hanakago.jpg" alt="Lesson 1">
+        <div class="lesson-content">
+          <h2>レッスン1: タグの基本</h2>
+          <p>HTMLの基本的なタグを学びます</p>
+          <a href="lesson.html" class="watch-button">▶︎ 視聴する</a>
+        </div>
+      </div>
+      <div class="lesson">
+        <img src="hebara.jpg" alt="Lesson 2">
+        <div class="lesson-content">
+          <h2>レッスン2: リストとリンク</h2>
+          <p>ナビゲーションの基本を学びます</p>
+          <a href="lesson.html" class="watch-button">▶︎ 視聴する</a>
+        </div>
+      </div>
+      <div class="lesson">
+        <img src="heisaura.jpg" alt="Lesson 3">
+        <div class="lesson-content">
+          <h2>レッスン3: テーブル</h2>
+          <p>表形式のデータを表示する方法</p>
+          <a href="lesson.html" class="watch-button">▶︎ 視聴する</a>
+        </div>
+      </div>
+      <div class="lesson">
+        <img src="heisaura.jpg" alt="Lesson 3">
+        <div class="lesson-content">
+          <h2>レッスン3: テーブル</h2>
+          <p>表形式のデータを表示する方法</p>
+          <a href="lesson.html" class="watch-button">▶︎ 視聴する</a>
+        </div>
+      </div>
+      <div class="lesson">
+        <img src="heisaura.jpg" alt="Lesson 3">
+        <div class="lesson-content">
+          <h2>レッスン3: テーブル</h2>
+          <p>表形式のデータを表示する方法</p>
+          <a href="lesson.html" class="watch-button">▶︎ 視聴する</a>
+        </div>
+      </div>
+      <div class="lesson">
+        <img src="heisaura.jpg" alt="Lesson 3">
+        <div class="lesson-content">
+          <h2>レッスン3: テーブル</h2>
+          <p>表形式のデータを表示する方法</p>
+          <a href="lesson.html" class="watch-button">▶︎ 視聴する</a>
+        </div>
+      </div>
+      <div class="lesson">
+        <img src="heisaura.jpg" alt="Lesson 3">
+        <div class="lesson-content">
+          <h2>レッスン3: テーブル</h2>
+          <p>表形式のデータを表示する方法</p>
+          <a href="lesson.html" class="watch-button">▶︎ 視聴する</a>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <details open>
+    <summary>CSSデザイン（全2レッスン）</summary>
+    <div class="lesson-wrapper">
+      <div class="lesson">
+        <img src="hikizikawa.jpg" alt="Lesson 4">
+        <div class="lesson-content">
+          <h2>レッスン4: スタイルの適用</h2>
+          <p>テキストと背景の装飾</p>
+          <a href="lesson.html" class="watch-button">▶︎ 視聴する</a>
+        </div>
+      </div>
+      <div class="lesson">
+        <img src="horikawahama.jpg" alt="Lesson 5">
+        <div class="lesson-content">
+          <h2>レッスン5: レイアウトとボックスモデル</h2>
+          <p>ページ構成を自在に操る</p>
+          <a href="lesson.html" class="watch-button">▶︎ 視聴する</a>
+        </div>
+      </div>
+      <div class="lesson">
+        <img src="horikawahama.jpg" alt="Lesson 5">
+        <div class="lesson-content">
+          <h2>レッスン5: レイアウトとボックスモデル</h2>
+          <p>ページ構成を自在に操る</p>
+          <a href="lesson.html" class="watch-button">▶︎ 視聴する</a>
+        </div>
+      </div>
+      <div class="lesson">
+        <img src="horikawahama.jpg" alt="Lesson 5">
+        <div class="lesson-content">
+          <h2>レッスン5: レイアウトとボックスモデル</h2>
+          <p>ページ構成を自在に操る</p>
+          <a href="lesson.html" class="watch-button">▶︎ 視聴する</a>
+        </div>
+      </div>
+      <div class="lesson">
+        <img src="horikawahama.jpg" alt="Lesson 5">
+        <div class="lesson-content">
+          <h2>レッスン5: レイアウトとボックスモデル</h2>
+          <p>ページ構成を自在に操る</p>
+          <a href="lesson.html" class="watch-button">▶︎ 視聴する</a>
+        </div>
+      </div>
+      <div class="lesson">
+        <img src="horikawahama.jpg" alt="Lesson 5">
+        <div class="lesson-content">
+          <h2>レッスン5: レイアウトとボックスモデル</h2>
+          <p>ページ構成を自在に操る</p>
+          <a href="lesson.html" class="watch-button">▶︎ 視聴する</a>
+        </div>
+      </div>
+      <div class="lesson">
+        <img src="horikawahama.jpg" alt="Lesson 5">
+        <div class="lesson-content">
+          <h2>レッスン5: レイアウトとボックスモデル</h2>
+          <p>ページ構成を自在に操る</p>
+          <a href="lesson.html" class="watch-button">▶︎ 視聴する</a>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <footer>
+    <div>
+      <a href="guide.html" style="margin-right: 1rem; color: var(--main-accent); text-decoration: none;">利用ガイド</a>
+      <a href="terms.html" style="color: var(--main-accent); text-decoration: none;">利用規約</a>
+    </div>
+    <div style="margin-top: 0.5rem;">
+      &copy; 2025 Eラーニング. All rights reserved.
+    </div>
+  </footer>
+</body>
+</html>

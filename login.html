@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <title>ログイン / 会員登録</title>
+  <style>
+    :root {
+      --main-color: #e0e7ff;
+      --main-accent: #6366f1;
+      --bg-color: #f9fafb;
+      --text-color: #111827;
+      --card-bg: #ffffff;
+      --button-hover: #4338ca;
+      --error-color: #dc2626;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, var(--main-color), var(--bg-color));
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1rem 1.5rem;
+    }
+
+    h1 {
+      margin-top: 1rem;
+      font-size: 1.5rem;
+      color: var(--main-accent);
+      font-weight: 600;
+    }
+
+    .auth-container {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      width: 85%;
+      max-width: 420px;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tab-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      background-color: var(--main-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .tab-buttons button {
+      flex: 1;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      background: none;
+      color: var(--text-color);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .tab-buttons button.active {
+      background-color: var(--main-accent);
+      color: white;
+    }
+
+    form {
+      display: none;
+      flex-direction: column;
+    }
+
+    form.active {
+      display: flex;
+    }
+
+    h2.form-title {
+      margin-top: 0.5rem;
+      font-size: 1.25rem;
+      text-align: center;
+      color: var(--main-accent);
+    }
+
+    label {
+      margin: 0.5rem 0 0.25rem;
+      font-weight: 600;
+    }
+
+    input[type="email"], input[type="password"], input[type="text"] {
+      padding: 0.6rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--main-accent);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+
+    .submit-button {
+      margin-top: 1.2rem;
+      padding: 0.75rem;
+      background-color: var(--main-accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+    }
+
+    .submit-button:hover {
+      background-color: var(--button-hover);
+    }
+
+    .extra-links {
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .extra-links a {
+      color: var(--main-accent);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .extra-links a:hover {
+      text-decoration: underline;
+    }
+
+    .error {
+      color: var(--error-color);
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
+
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+    .password-wrapper {
+    position: relative;
+    }
+
+    .password-wrapper input {
+    box-sizing: border-box;
+    width: 100%;
+    padding-right: 2.5rem; /* アイコンのスペース確保 */
+    }
+
+    .toggle-password {
+    position: absolute;
+    right: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: #6b7280;
+    user-select: none;
+    }
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      display: none;
+      z-index: 10;
+    }
+
+
+  </style>
+</head>
+<body>
+  <h1 id="form-title" class="form-title">ログイン</h1>
+  <div class="auth-container">
+    <div class="loading-overlay" id="loading-overlay">読み込み中...</div>
+    <div class="tab-buttons">
+      <button id="login-tab" class="active">ログイン</button>
+      <button id="register-tab">新規登録</button>
+    </div>
+
+    <form id="login-form" class="active" onsubmit="event.preventDefault(); login();">
+      <label for="login-email">メールアドレス</label>
+      <input type="email" id="login-email" required>
+
+      <label for="login-password">パスワード</label>
+      <input type="password" id="login-password" required>
+
+      <button type="submit" class="submit-button">ログイン</button>
+
+      <div class="extra-links">
+        <a href="passwordreset.html">パスワードをお忘れですか？</a><br>
+      </div>
+    </form>
+
+    <form id="register-form" onsubmit="event.preventDefault(); validateRegistration();">
+      <label for="register-name">氏名</label>
+      <input type="text" id="register-name" required>
+      <div id="name-error" class="error"></div>
+
+      <label for="register-email">メールアドレス</label>
+      <input type="email" id="register-email" required>
+      <div id="email-error" class="error"></div>
+
+      <label for="register-password">パスワード</label>
+        <div class="password-wrapper">
+            <input type="password" id="register-password" required>
+            <span class="toggle-password" onclick="togglePassword('register-password', this)">
+                <i class="fa-solid fa-eye"></i>
+            </span>
+        </div>
+
+      <label for="register-confirm">パスワード（確認）</label>
+        <div class="password-wrapper">
+            <input type="password" id="register-confirm" required>
+            <span class="toggle-password" onclick="togglePassword('register-confirm', this)">
+                <i class="fa-solid fa-eye"></i>
+            </span>
+        </div>
+        <div id="password-error" class="error"></div>
+
+      <button type="submit" class="submit-button">会員登録</button>
+    </form>
+  </div>
+
+  <footer>
+    &copy; 2025 Eランニング. All rights reserved.
+  </footer>
+
+  <script>
+    const overlay = document.getElementById("loading-overlay");
+    const loginTab = document.getElementById('login-tab');
+    const registerTab = document.getElementById('register-tab');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const formTitle = document.getElementById('form-title');
+
+    loginTab.addEventListener('click', () => {
+      loginTab.classList.add('active');
+      registerTab.classList.remove('active');
+      loginForm.classList.add('active');
+      registerForm.classList.remove('active');
+      formTitle.textContent = 'ログイン';
+    });
+
+    registerTab.addEventListener('click', () => {
+      registerTab.classList.add('active');
+      loginTab.classList.remove('active');
+      registerForm.classList.add('active');
+      loginForm.classList.remove('active');
+      formTitle.textContent = '新規登録';
+    });
+
+    async function validateRegistration() {
+        const name = document.getElementById('register-name').value.trim();
+        const email = document.getElementById('register-email').value.trim();
+        const password = document.getElementById('register-password').value;
+        const confirm = document.getElementById('register-confirm').value;
+        const nameError = document.getElementById('name-error');
+        const emailError = document.getElementById('email-error');
+        const passError = document.getElementById('password-error');
+        nameError.textContent = '';
+        emailError.textContent = '';
+        passError.textContent = '';
+
+        if (!name) {
+            nameError.textContent = '氏名を入力してください。';
+            return;
+        }
+
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            emailError.textContent = '有効なメールアドレスを入力してください。';
+            return;
+        }
+
+        const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+        if (!strongPassword.test(password)) {
+            passError.textContent = '8文字以上、英大文字・小文字・数字を含めてください。';
+            return;
+        }
+
+        if (password !== confirm) {
+            passError.textContent = 'パスワードが一致しません。';
+            return;
+        }
+
+        // ✅ バリデーション通過 → API呼び出し
+        try {
+            const res = await fetch("https://kxker08yzd.execute-api.ap-northeast-1.amazonaws.com/prod/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name, email, password })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+            throw new Error(data.message || "登録に失敗しました。");
+            }
+
+            // ✅ JWTを保存してマイページへ
+            localStorage.setItem("token", data.token);
+            location.href = "mypage.html";
+
+        } catch (err) {
+            passError.textContent = err.message;
+        }
+    }
+    async function login() {
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        
+        // エラー表示の要素を動的に追加
+        let existingError = document.getElementById('login-error');
+        if (existingError) {
+        existingError.remove();
+        }
+
+        try {
+        const res = await fetch("https://kxker08yzd.execute-api.ap-northeast-1.amazonaws.com/prod/login", {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.message || "ログインに失敗しました。");
+        }
+
+        // ✅ JWT保存 & 遷移
+        localStorage.setItem("token", data.token);
+        location.href = "mypage.html";
+
+        } catch (err) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error';
+        errorDiv.id = 'login-error';
+        errorDiv.textContent = err.message;
+        document.getElementById('login-form').appendChild(errorDiv);
+        }
+    }
+    function togglePassword(fieldId, el) {
+        const input = document.getElementById(fieldId);
+        const icon = el.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+  </script>
+</body>
+</html>

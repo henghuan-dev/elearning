@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マイページ｜Eランニング</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --main-accent: #6366f1;
+      --main-accent-dark: #4338ca;
+      --bg-color: #f9fafb;
+      --text-color: #1f2937;
+      --card-bg: #ffffff;
+      --progress-bg: #e5e7eb;
+      --danger-color: #dc2626;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #e0e7ff, var(--bg-color));
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1rem 1.5rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 720px;
+      margin: 2rem auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--main-accent);
+      margin-bottom: 2rem;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border-left: 6px solid var(--main-accent);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      color: var(--main-accent);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card dl {
+      display: grid;
+      grid-template-columns: 40% 60%;
+      row-gap: 0.5rem;
+      column-gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .card dt {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .card dd {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background-color: #d1fae5;
+      color: #065f46;
+      font-size: 0.85rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .button-group a {
+      flex: 1 1 calc(33.33% - 0.5rem);
+      text-align: center;
+      padding: 0.6rem 1rem;
+      background-color: var(--main-accent);
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: background-color 0.2s ease;
+      box-sizing: border-box;
+      font-size: 0.9rem;
+    }
+
+    .button-group a:hover {
+      background-color: var(--main-accent-dark);
+    }
+
+    .progress-bar {
+      width: 100%;
+      background-color: var(--progress-bg);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+
+    .progress-bar span {
+      display: block;
+      height: 1rem;
+      background-color: var(--main-accent);
+      width: 30%;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .nav-buttons a {
+      padding: 0.6rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.95rem;
+      text-align: center;
+      width: 160px;
+    }
+
+    .nav-buttons a:first-child {
+      background-color: var(--main-accent);
+      color: white;
+    }
+
+    .nav-buttons a:first-child:hover {
+      background-color: var(--main-accent-dark);
+    }
+
+    .nav-buttons a:last-child {
+      background-color: white;
+      color: var(--danger-color);
+      border: 1px solid var(--danger-color);
+    }
+
+    .nav-buttons a:last-child:hover {
+      background-color: #fee2e2;
+    }
+
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+
+    @media (max-width: 600px) {
+      .button-group {
+        flex-direction: column;
+      }
+      .button-group a {
+        width: 100%;
+        flex: unset;
+      }
+      .card dl {
+        grid-template-columns: 40% 60%;
+      }
+      .nav-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .nav-buttons a {
+        width: 80%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>マイページ</h1>
+
+    <div class="card">
+      <h2><i class="fa-regular fa-user"></i> 会員情報</h2>
+      <dl>
+        <dt>名前</dt><dd>山田 太郎</dd>
+        <dt>メール</dt><dd>taro@example.com</dd>
+        <dt>登録日</dt><dd>2025-04-01</dd>
+        <dt>最終ログイン</dt><dd>2025-05-07</dd>
+        <dt>支払い状況</dt><dd><span class="badge">支払い済み</span></dd>
+      </dl>
+      <div class="button-group">
+        <a href="#"><i class="fa-solid fa-key"></i> パスワード変更</a>
+        <a href="#"><i class="fa-solid fa-receipt"></i> 領収書DL</a>
+        <a href="#"><i class="fa-solid fa-file-invoice"></i> 請求書DL</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><i class="fa-solid fa-graduation-cap"></i> 学習進捗</h2>
+      <div class="progress-bar">
+        <span style="width: 30%;"></span>
+      </div>
+      <p>3 / 10 レッスン完了</p>
+    </div>
+
+    <div class="card">
+      <h2><i class="fa-regular fa-file-pdf"></i> 修了証明書</h2>
+      <p><a href="#">▶ 修了証明書をダウンロード</a></p>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="elearning.html">トップページへ</a>
+      <a href="#" onclick="logout()">ログアウト</a>
+    </div>
+  </div>
+  <footer>
+    <div>
+      <a href="guide.html" style="margin-right: 1rem; color: var(--main-accent); text-decoration: none;">利用ガイド</a>
+      <a href="terms.html" style="color: var(--main-accent); text-decoration: none;">利用規約</a>
+    </div>
+    <div style="margin-top: 0.5rem;">
+      &copy; 2025 Eラーニング. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("token");
+      location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

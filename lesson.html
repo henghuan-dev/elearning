@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>レッスン視聴ページ</title>
+  <style>
+    :root {
+      --main-accent: #6366f1;
+      --button-hover: #4338ca;
+      --bg-color: #f9fafb;
+      --card-bg: #ffffff;
+      --text-color: #111827;
+      --error-color: #dc2626;
+      --disabled-color: #cbd5e1;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 1rem;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 999;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background-color: rgba(99, 102, 241, 0.85);
+      color: white;
+      backdrop-filter: blur(6px);
+    }
+
+    header h1 {
+      font-size: 1.25rem;
+      margin: 0;
+    }
+
+    nav a {
+      background-color: white;
+      color: var(--main-accent);
+      padding: 0.4rem 0.8rem;
+      border-radius: 5px;
+      font-weight: bold;
+      text-decoration: none;
+      margin-left: 0.5rem;
+    }
+
+    nav a:hover {
+      background-color: #e0e7ff;
+    }
+
+    .lesson-container {
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 10px;
+      max-width: 960px;
+      margin: 3rem auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .video-wrapper iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: none;
+      border-radius: 10px;
+    }
+
+    .quiz {
+      margin-top: 2rem;
+      background: #f1f5f9;
+      padding: 1rem;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .quiz h3 {
+      margin-top: 0;
+    }
+
+    .quiz .error {
+      color: var(--error-color);
+      margin-top: 0.5rem;
+    }
+
+    .quiz-result {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+
+    .next-button {
+      display: inline-block;
+      margin-top: 1rem;
+      background-color: var(--disabled-color);
+      color: white;
+      padding: 0.5rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      cursor: not-allowed;
+    }
+
+    .next-button.active {
+      background-color: var(--main-accent);
+      cursor: pointer;
+    }
+
+    .navigation {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+    }
+
+    .navigation button {
+      background-color: var(--main-accent);
+      color: white;
+      border: none;
+      padding: 0.5rem 1.2rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .navigation button:hover {
+      background-color: var(--button-hover);
+    }
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Eラーニング</h1>
+    <nav>
+      <a href="elearning.html">トップ</a>
+      <a href="mypage.html">マイページ</a>
+    </nav>
+  </header>
+
+  <div class="lesson-container">
+    <div class="video-wrapper">
+      <iframe frameborder="0" src="https://www.videog.jp/player/RlJtSF2PyAkA" allowfullscreen></iframe>
+    </div>
+
+    <div class="quiz" id="quiz">
+      <h3>【質問】HTMLの開始タグはどれですか？</h3>
+      <form onsubmit="event.preventDefault(); checkAnswer();">
+        <label><input type="radio" name="quiz" value="a"> a) &lt;html&gt;</label><br>
+        <label><input type="radio" name="quiz" value="b"> b) &lt;head&gt;</label><br>
+        <label><input type="radio" name="quiz" value="c"> c) &lt;body&gt;</label><br>
+        <div class="error" id="quiz-error"></div>
+        <button type="submit" class="submit-button">回答する</button>
+      </form>
+      <div class="quiz-result" id="quiz-result"></div>
+      <button class="next-button" id="unlock-next" onclick="goToLesson('next')" disabled>▶︎ 次のレッスンへ進む</button>
+    </div>
+
+    <div class="navigation">
+      <button onclick="goToLesson('prev')">← 前のレッスン</button>
+      <button onclick="goToLesson('next')">次のレッスン →</button>
+    </div>
+  </div>
+
+  <footer>
+    <div>
+      <a href="guide.html" style="margin-right: 1rem; color: var(--main-accent); text-decoration: none;">利用ガイド</a>
+      <a href="terms.html" style="color: var(--main-accent); text-decoration: none;">利用規約</a>
+    </div>
+    <div style="margin-top: 0.5rem;">
+      &copy; 2025 Eラーニング. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    const quizElement = document.getElementById('quiz');
+    const result = document.getElementById('quiz-result');
+    const error = document.getElementById('quiz-error');
+    const unlockBtn = document.getElementById('unlock-next');
+
+    // 疑似的に動画終了後にクイズ表示
+    setTimeout(() => {
+      quizElement.style.display = 'block';
+    }, 5000); // 実運用では動画APIイベントと連携すべき
+
+    function checkAnswer() {
+      const selected = document.querySelector('input[name="quiz"]:checked');
+      if (!selected) {
+        error.textContent = '回答を選択してください。';
+        return;
+      }
+      error.textContent = '';
+      if (selected.value === 'a') {
+        result.textContent = '正解です！';
+        unlockBtn.classList.add('active');
+        unlockBtn.disabled = false;
+        unlockBtn.style.cursor = 'pointer';
+      } else {
+        result.textContent = '不正解です。もう一度挑戦してください。';
+      }
+    }
+
+    function goToLesson(direction) {
+      if (direction === 'next') {
+        alert('次のレッスンへ遷移します');
+        // location.href = 'lesson2.html';
+      } else {
+        alert('前のレッスンへ遷移します');
+        // location.href = 'lesson1.html';
+      }
+    }
+  </script>
+</body>
+</html>
