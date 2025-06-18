@@ -3,72 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>オンライン講義（生徒）</title>
+  <title>オンライン講義（レスポンシブ対応）</title>
   <link rel="stylesheet" href="online.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <script src="https://unpkg.com/@daily-co/daily-js"></script>
-  <style>
-    .overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: rgba(0, 0, 0, 0.7);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-    .entry-box {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 12px;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-    .entry-box button {
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      background-color: #6366f1;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-  </style>
 </head>
 <body>
-  <!-- 入室オーバーレイ -->
-  <div id="entry-overlay" class="overlay">
-    <div class="entry-box">
-      <h2>オンライン講義へ入室</h2>
-      <p>講師の映像を視聴するには「入室する」ボタンを押してください。</p>
-      <button id="enter-button">入室する</button>
-    </div>
-  </div>
-
   <header>📚 オンライン講義</header>
 
   <div class="container">
     <div class="main-area">
-      <!-- メインプレーヤー -->
-      <div class="player-block" data-role="main">
-        <label class="block-label">🎬 教材映像</label>
-        <div class="player-wrapper" style="position: relative; width: 100%; aspect-ratio: 16/9;">
-          <iframe id="main-iframe"
-                  class="player-layer iframe-layer visible"
-                  src="https://www.videog.jp/player/xupYjPOMx-Lg"
-                  frameborder="0"
-                  allowfullscreen
-                  allow="autoplay"
-                  style="z-index: 2; position: absolute; width: 100%; height: 100%; border-radius: 0 0 12px 12px;"></iframe>
+      <!-- 教材プレーヤー -->
+      <div class="player-block" id="main-container">
+        <label class="block-label" id="main-label">🎬 教材映像</label>
+        <div class="player-wrapper" id="main-wrapper"></div>
 
-          <video id="main-video"
-                 class="player-layer video-layer hidden"
-                 autoplay muted playsinline
-                 style="z-index: 1; position: absolute; width: 100%; height: 100%; object-fit: cover; border-radius: 0 0 12px 12px;"></video>
+        <!-- 退出・参加者は教材映像の下に配置 -->
+        <div class="control-panel">
+          <button onclick="leaveCall()">🚪 退出</button>
+          <span id="participant-count">👥 参加者: 0</span>
         </div>
       </div>
 
-      <!-- チャット -->
+      <!-- チャットエリア -->
       <div class="chat-section">
         <label class="block-label">💬 チャット</label>
         <div class="chat-log" id="chat-log"></div>
@@ -78,27 +35,31 @@
         </form>
       </div>
     </div>
-
-    <!-- 退出・参加者 -->
-    <div class="control-panel">
-      <button id="exit-button" onclick="leaveCall()">🚪 退出</button>
-      <span id="participant-count">👥 参加者: 0</span>
-    </div>
   </div>
 
   <!-- ミニプレーヤー（講師映像） -->
-  <div id="mini-player" class="mini-player" data-role="sub" style="left: auto; top: auto;">
+  <div id="mini-container" class="mini-player" style="left:auto; top:auto;">
     <div class="drag-handle" id="mini-label">👨‍🏫 講師映像</div>
-    <video id="mini-video"
-           class="player-layer visible"
-           autoplay muted playsinline
-           style="z-index: 1; position: absolute; width: 100%; height: 100%; object-fit: cover; border-radius: 12px;"></video>
-    <button class="swap-btn" onclick="swapPlayersByVisibility()">
+    <div class="player-wrapper" id="mini-wrapper"></div>
+    <button class="swap-btn" onclick="swapPlayers()">
       <i class="fas fa-right-left"></i>
     </button>
   </div>
 
-  <div id="remote-videos" style="display: none;"></div>
+  <!-- 教材映像（MP4） -->
+  <video id="material-video"
+         src="WET工業会②.mp4"
+         controls
+         playsinline
+         style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
+  </video>
+
+  <!-- 講師映像（WebRTC） -->
+  <video id="teacher-video"
+         autoplay muted playsinline
+         style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
+  </video>
+
   <script src="online.js"></script>
 </body>
 </html>
